@@ -4,8 +4,8 @@ export default function ChangeBackground(props) {
     const [url, setUrl] = useState('');
 
     return (
-        <div>
-            <div className="input-group mb-3">
+        <div className="p-1">
+            <div className="input-group">
                 <input type="text" className="form-control"
                        value={url}
                        onChange={event => setUrl(event.target.value)}
