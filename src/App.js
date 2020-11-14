@@ -34,10 +34,16 @@ class App extends React.Component  {
     }
 
     changeBackground(new_url) {
-        console.log(new_url);
         const root = document.getElementById('root');
-        root.style.backgroundImage = `url(${new_url})`;
-        this.changeSettingsOpen();
+        if (new_url instanceof Object) {
+            root.style.backgroundImage = 'none';
+            root.style.background = new_url.code;
+        }
+        else {
+            root.style.background = 'transparent';
+            root.style.backgroundImage = `url(${new_url})`;
+            this.changeSettingsOpen();
+        }
     }
 
     render() {

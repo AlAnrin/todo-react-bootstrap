@@ -1,7 +1,12 @@
 @import '~bootstrap/scss/bootstrap.scss';
 
 button, input {
-  outline: none;
+  outline: none !important;
+}
+
+.btn:focus,.btn:active {
+  outline: none !important;
+  box-shadow: none;
 }
 
 .spacer {
@@ -40,4 +45,20 @@ button, input {
 }
 .svg-close-settings-btn:hover {
   animation: close-svg-settings-hover 3s;
+}
+.color-card {
+  width: 33px;
+  height: 33px;
+  padding: 1px;
+  border: 1px solid $gray-600;
+  margin: 2px;
+}
+.color-card:hover {
+  border: 1px solid $gray-700;
+  padding: 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.23);
+}
+.active-color-card {
+  border: 2px solid $gray-900;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.53);
 }

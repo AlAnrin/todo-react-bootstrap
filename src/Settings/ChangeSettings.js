@@ -14,7 +14,6 @@ export default function ChangeSettings(props) {
                 </svg>
             </button>
             <div className="mt-4">
-                <h4 className="mt-1 ml-1">Сменить фон: </h4>
                 <ChangeBackground
                     changeBackground={props.changeBackground}/>
             </div>

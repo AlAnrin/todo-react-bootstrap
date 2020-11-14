@@ -5,6 +5,6 @@ html, body, #root {
 }
 
 #root {
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
 }
