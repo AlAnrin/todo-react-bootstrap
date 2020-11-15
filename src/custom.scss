@@ -3,6 +3,17 @@
 $light-purple: #a68ed7;
 $light-blue: #99b6e5;
 
+html, body, #root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
 button, input {
   outline: none !important;
 }
@@ -17,6 +28,7 @@ button, input {
   color: inherit;
   outline: none !important;
   box-shadow: none;
+  width: -webkit-fill-available;
 }
 .title-input:focus {
   background: inherit;
@@ -25,8 +37,13 @@ button, input {
   box-shadow: none;
 }
 .title-span {
-  height: 38px !important;
-  margin: 7px 2px -7px;
+  min-height: 38px !important;
+  display: flex;
+  align-items: center;
+  width: -webkit-fill-available;
+  cursor: pointer;
+  word-break: break-all;
+  white-space: normal;
 }
 
 .btn:focus,.btn:active {
@@ -88,18 +105,20 @@ button, input {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.53);
 }
 .directories-scroll {
+  height: calc(100vh - 60px);
   overflow-x: auto;
   white-space: nowrap;
   flex-wrap: nowrap;
 }
 .todos-scroll {
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 205px);
   overflow-y: auto;
   white-space: nowrap;
   flex-wrap: nowrap;
 }
 .directory-card {
-  width: 300px;
+  min-width: 275px;
+  max-width: 275px;
   margin: 10px;
   height: fit-content;
   border: 1px solid $primary;
@@ -110,7 +129,8 @@ button, input {
   border: 1px solid $primary;
   border-radius: 5px;
   background: white;
-  cursor: pointer;
+  display: flex;
+  flex-direction: row;
 }
 .todo-card:hover {
   color: $black;
@@ -118,8 +138,21 @@ button, input {
 }
 .dir-title {
   font-weight: bolder;
-  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  margin-left: 5px;
+  margin-right: 5px;
 }
+.delete-button {
+  right: 5px;
+  z-index: $zindex-sticky;
+  padding-top: 1px;
+}
+.delete-button:hover {
+  animation: close-svg-settings-hover 3s;
+  color: $primary;
+}
+
 
 /* width */
 ::-webkit-scrollbar {

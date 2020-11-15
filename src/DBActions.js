@@ -1,7 +1,12 @@
 import { openDB } from 'idb';
 
-export const dbPromise = openDB('store', 3, {
+export const dbPromise = openDB('store', 5, {
     upgrade(db) {
+        if (!db.objectStoreNames.contains('settings')) {
+            let dirs = db.createObjectStore('settings',
+                {keyPath: 'name', autoIncrement: false});
+            dirs.createIndex('value', 'value', {unique: false});
+        }
         if (!db.objectStoreNames.contains('dirs')) {
             let dirs = db.createObjectStore('dirs',
                 {keyPath: 'id', autoIncrement: true});
