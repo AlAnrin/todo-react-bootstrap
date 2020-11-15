@@ -1,5 +1,5 @@
 import React from "react";
-import Todos from "./Todos";
+import Todo from "./Todo";
 
 export default function Directories(props) {
     return (
@@ -10,7 +10,11 @@ export default function Directories(props) {
                     <div key={dir.dir.id} className="directory-card p-2 m-2">
                         <h3>{dir.dir.title}</h3>
                         <div className="todos-scroll">
-                            <Todos dir={dir}/>
+                            {
+                                dir.todos.map(todo =>
+                                    <Todo todo={todo}/>
+                                )
+                            }
                         </div>
                         <button type="button"
                                 className="btn btn-outline-primary m-2"

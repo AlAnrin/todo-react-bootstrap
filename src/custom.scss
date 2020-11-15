@@ -1,5 +1,7 @@
 @import '~bootstrap/scss/bootstrap.scss';
 
+$light-purple: #a68ed7;
+
 button, input {
   outline: none !important;
 }
@@ -84,6 +86,13 @@ button, input {
 .todo-card {
   border: 1px solid $gray-600;
   border-radius: 5px;
+  background: $gray-700;
+  color: $light;
+  cursor: pointer;
+}
+.todo-card:hover {
+  color: $black;
+  background: $light-purple;
 }
 
 /* width */

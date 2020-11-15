@@ -28,8 +28,8 @@ export const idbKeyval = {
     async add(table,val) {
         return (await dbPromise).add(table, val);
     },
-    async set(table,key, val) {
-        return (await dbPromise).put(table, val, key);
+    async set(table, val) {
+        return (await dbPromise).put(table, val);
     },
     async delete(table,key) {
         return (await dbPromise).delete(table, key);
