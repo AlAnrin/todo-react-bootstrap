@@ -1,9 +1,32 @@
 @import '~bootstrap/scss/bootstrap.scss';
 
 $light-purple: #a68ed7;
+$light-blue: #99b6e5;
 
 button, input {
   outline: none !important;
+}
+
+.title-input {
+  border: none !important;
+  border-bottom: 2px solid #6c757d !important;
+  border-radius: 0;
+  margin: 0;
+  padding: 2px;
+  background: inherit;
+  color: inherit;
+  outline: none !important;
+  box-shadow: none;
+}
+.title-input:focus {
+  background: inherit;
+  color: inherit;
+  outline: none !important;
+  box-shadow: none;
+}
+.title-span {
+  height: 38px !important;
+  margin: 7px 2px -7px;
 }
 
 .btn:focus,.btn:active {
@@ -84,15 +107,18 @@ button, input {
   border-radius: 5px;
 }
 .todo-card {
-  border: 1px solid $gray-600;
+  border: 1px solid $primary;
   border-radius: 5px;
-  background: $gray-700;
-  color: $light;
+  background: white;
   cursor: pointer;
 }
 .todo-card:hover {
   color: $black;
-  background: $light-purple;
+  background: $light-blue;
+}
+.dir-title {
+  font-weight: bolder;
+  cursor: pointer;
 }
 
 /* width */

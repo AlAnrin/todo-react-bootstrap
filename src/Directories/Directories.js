@@ -1,5 +1,5 @@
 import React from "react";
-import Todo from "./Todo";
+import TitleWithInput from "./TitleWithInput";
 
 export default function Directories(props) {
     return (
@@ -8,11 +8,14 @@ export default function Directories(props) {
                 props.dirs.length !== 0 &&
                 props.dirs.map(dir =>
                     <div key={dir.dir.id} className="directory-card p-2 m-2">
-                        <h3>{dir.dir.title}</h3>
+                        <TitleWithInput table="dirs" obj={dir.dir} id={'dirs' + dir.dir.id}/>
                         <div className="todos-scroll">
                             {
                                 dir.todos.map(todo =>
-                                    <Todo todo={todo}/>
+                                    <TitleWithInput table="todos"
+                                                    key={'todo' + todo.id}
+                                                    obj={todo}
+                                                    id={'todos/dir' + dir.dir.id + '/todo' + todo.id}/>
                                 )
                             }
                         </div>

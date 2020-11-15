@@ -38,11 +38,11 @@ class App extends React.Component  {
     }
 
     addNewDir() {
-        idbKeyval.add('dirs', {title: 'NEWWWWW'}).then(() => this.updateDirs());
+        idbKeyval.add('dirs', {title: 'New list'}).then(() => this.updateDirs());
     }
     addNewTODO(dir) {
         idbKeyval.add('todos', {
-            title: 'NEW TODO',
+            title: 'New todo',
             describe: 'new',
             data: Date.now().toLocaleString(),
             dir_id: dir.id
