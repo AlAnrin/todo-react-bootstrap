@@ -62,3 +62,47 @@ button, input {
   border: 2px solid $gray-900;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.53);
 }
+.directories-scroll {
+  overflow-x: auto;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+.todos-scroll {
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+.directory-card {
+  width: 300px;
+  margin: 10px;
+  height: fit-content;
+  border: 1px solid $primary;
+  background: $gray-200;
+  border-radius: 5px;
+}
+.todo-card {
+  border: 1px solid $gray-600;
+  border-radius: 5px;
+}
+
+/* width */
+::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: $gray-200;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $gray-400;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: $gray-600;
+}

@@ -2,15 +2,55 @@ import './App.css';
 import './custom.scss';
 import React from "react";
 import ChangeSettings from './Settings/ChangeSettings'
+import {dbPromise, idbKeyval} from './DBActions';
+import Directories from "./Directories/Directories";
 
 class App extends React.Component  {
     constructor(props) {
         super(props);
         this.state = {
-            isOpenSettings: false
+            isOpenSettings: false,
+            db: dbPromise,
+            dirs: []
         };
 
         this.changeBackground = this.changeBackground.bind(this);
+        this.addNewTODO= this.addNewTODO.bind(this);
+        this.clear = this.clear.bind(this);
+
+        this.updateDirs();
+    }
+
+    updateDirs() {
+        idbKeyval.getAll('dirs').then(dirs => {
+            idbKeyval.getAll('todos').then(todos => {
+                let res = [];
+                for (let dir of dirs) {
+                    res.push({
+                        dir: dir,
+                        todos: todos.filter(x =>
+                            x.dir_id === dir.id)
+                    })
+                }
+                this.setState({dirs: res});
+            })
+        });
+    }
+
+    addNewDir() {
+        idbKeyval.add('dirs', {title: 'NEWWWWW'}).then(() => this.updateDirs());
+    }
+    addNewTODO(dir) {
+        idbKeyval.add('todos', {
+            title: 'NEW TODO',
+            describe: 'new',
+            data: Date.now().toLocaleString(),
+            dir_id: dir.id
+        }).then(() => this.updateDirs());
+    }
+
+    clear(type) {
+        idbKeyval.clear(type).then(() => this.updateDirs())
     }
 
     setNewSettingsPanelPosition() {
@@ -58,18 +98,32 @@ class App extends React.Component  {
                                     changeSettingsOpen={() => this.changeSettingsOpen()}/>
                             </div>
                             :
-                            <div className="row">
-                                <div className="spacer"/>
-                                <button type="button" onClick={() => this.changeSettingsOpen()}
-                                        className="btn btn-outline-primary m-2">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles">
-                                        <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles"
-                                             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                  d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z"/>
+                            <div>
+                                <div className="row">
+                                    <div className="spacer"/>
+                                    <button type="button" onClick={() => this.changeSettingsOpen()}
+                                            className="btn btn-outline-primary m-2">
+                                        <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles"
+                                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                      d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z"/>
+                                            </svg>
                                         </svg>
-                                    </svg>
-                                </button>
+                                    </button>
+                                </div>
+                                <button type="button"
+                                        className="btn btn-outline-primary m-2"
+                                        onClick={() => this.addNewDir()}>Add</button>
+                                <button type="button"
+                                        className="btn btn-outline-primary m-2"
+                                        onClick={() => this.clear('dirs')}>Clear</button>
+                                <div className="row directories-scroll">
+                                    <Directories
+                                        addNewTODO={this.addNewTODO}
+                                        clear={this.clear}
+                                        dirs={this.state.dirs}/>
+                                </div>
                             </div>
                     }
                 </>
