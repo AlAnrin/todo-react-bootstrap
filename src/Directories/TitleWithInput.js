@@ -45,7 +45,7 @@ export default function TitleWithInput(props) {
 
     return (
         <div className={props.table === 'todos' ? 'todo-card p-1 m-1 draggable' : 'dir-title p-1'}
-             id={props.id}
+             id={'div/' + props.id}
              onDragStart={(event) => onDragStart(event, props.obj)}
              draggable={props.table === 'todos'}>
             {
