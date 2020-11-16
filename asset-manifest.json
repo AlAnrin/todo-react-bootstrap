@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/todo-react-bootstrap/static/css/main.3374f514.chunk.css",
+    "main.js": "/todo-react-bootstrap/static/js/main.27144da3.chunk.js",
+    "main.js.map": "/todo-react-bootstrap/static/js/main.27144da3.chunk.js.map",
+    "runtime-main.js": "/todo-react-bootstrap/static/js/runtime-main.ce21b685.js",
+    "runtime-main.js.map": "/todo-react-bootstrap/static/js/runtime-main.ce21b685.js.map",
+    "static/js/2.d329bacd.chunk.js": "/todo-react-bootstrap/static/js/2.d329bacd.chunk.js",
+    "static/js/2.d329bacd.chunk.js.map": "/todo-react-bootstrap/static/js/2.d329bacd.chunk.js.map",
+    "static/js/3.3f5eef92.chunk.js": "/todo-react-bootstrap/static/js/3.3f5eef92.chunk.js",
+    "static/js/3.3f5eef92.chunk.js.map": "/todo-react-bootstrap/static/js/3.3f5eef92.chunk.js.map",
+    "index.html": "/todo-react-bootstrap/index.html",
+    "static/css/main.3374f514.chunk.css.map": "/todo-react-bootstrap/static/css/main.3374f514.chunk.css.map",
+    "static/js/2.d329bacd.chunk.js.LICENSE.txt": "/todo-react-bootstrap/static/js/2.d329bacd.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.ce21b685.js",
+    "static/js/2.d329bacd.chunk.js",
+    "static/css/main.3374f514.chunk.css",
+    "static/js/main.27144da3.chunk.js"
+  ]
+}
