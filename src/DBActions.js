@@ -1,6 +1,6 @@
 import { openDB } from 'idb';
 
-export const dbPromise = openDB('store', 5, {
+export const dbPromise = openDB('store', 6, {
     upgrade(db) {
         if (!db.objectStoreNames.contains('settings')) {
             let dirs = db.createObjectStore('settings',
@@ -11,6 +11,7 @@ export const dbPromise = openDB('store', 5, {
             let dirs = db.createObjectStore('dirs',
                 {keyPath: 'id', autoIncrement: true});
             dirs.createIndex('title', 'title', {unique: false});
+            dirs.createIndex('order', 'order', {unique: false});
         }
         if (!db.objectStoreNames.contains('todos')) {
             let todos = db.createObjectStore('todos',
@@ -19,6 +20,7 @@ export const dbPromise = openDB('store', 5, {
             todos.createIndex('describe', 'describe', {unique: false});
             todos.createIndex('data', 'data', {unique: false});
             todos.createIndex('dir_id', 'dir_id', {unique: false});
+            todos.createIndex('order', 'order', {unique: false});
         }
     },
 });

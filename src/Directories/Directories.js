@@ -7,7 +7,9 @@ export default function Directories(props) {
             {
                 props.dirs.length !== 0 &&
                 props.dirs.map(dir =>
-                    <div key={dir.dir.id} className="directory-card p-2 m-2">
+                    <div key={dir.dir.id} className="directory-card p-2 m-2 droppable"
+                         onDrop={event => props.onDrop(event, dir)}
+                         onDragOver={event => props.onDragOver(event)}>
                         <TitleWithInput table="dirs" deleteObj={props.deleteDir}
                                         obj={dir.dir} id={'dirs' + dir.dir.id}/>
                         <div className="todos-scroll">
@@ -17,13 +19,13 @@ export default function Directories(props) {
                                                     deleteObj={props.deleteTodo}
                                                     key={'todo' + todo.id}
                                                     obj={todo}
-                                                    id={'todos/dir' + dir.dir.id + '/todo' + todo.id}/>
+                                                    id={'todos/dir' + dir.dir.id + '/todo:' + todo.id}/>
                                 )
                             }
                         </div>
                         <button type="button"
                                 className="btn btn-outline-primary m-1"
-                                onClick={() => props.addNewTODO(dir.dir)}>Добавить
+                                onClick={() => props.addNewTODO(dir)}>Добавить
                         </button>
                     </div>
                 )

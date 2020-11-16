@@ -19,6 +19,7 @@ class App extends React.Component  {
         this.deleteDir = this.deleteDir.bind(this);
         this.deleteToDo = this.deleteToDo.bind(this);
         this.clear = this.clear.bind(this);
+        this.onDrop = this.onDrop.bind(this);
     }
 
     componentDidMount() {
@@ -52,16 +53,21 @@ class App extends React.Component  {
                     res.push({
                         dir: dir,
                         todos: todos.filter(x =>
-                            x.dir_id === dir.id)
+                            x.dir_id === dir.id).sort((a,b) => a.order - b.order)
                     })
                 }
+                res.sort((a,b) => a.order - b.order);
                 this.setState({dirs: res});
             })
         });
     }
 
     addNewDir() {
-        idbKeyval.add('dirs', {title: 'New list'}).then(() => this.updateDirs());
+        idbKeyval.add('dirs', {
+            title: 'New list',
+            order: this.state.dirs.length
+        })
+            .then(() => this.updateDirs());
     }
 
     addNewTODO(dir) {
@@ -69,7 +75,8 @@ class App extends React.Component  {
             title: 'New todo',
             describe: 'new',
             data: new Date().toISOString(),
-            dir_id: dir.id
+            dir_id: dir.dir.id,
+            order: dir.todos.length
         }).then(() => this.updateDirs());
     }
 
@@ -143,6 +150,61 @@ class App extends React.Component  {
         }
     }
 
+    onDragOver(event) {
+        event.preventDefault();
+    }
+
+    onDrop(event, dir) {
+        const id = +event.dataTransfer.getData('obj');
+        idbKeyval.get('todos', id).then(todo => {
+            if (todo.dir_id !== dir.dir.id) {
+                todo.dir_id = dir.dir.id;
+                todo.order = dir.todos.length;
+                idbKeyval.set('todos', todo)
+                    .then(() => this.updateDirs());
+            }
+            else {
+                const target_id = event.target.id;
+                if (target_id) {
+                    let new_id = +target_id.split(':')[1];
+                    if (new_id !== id) {
+                        idbKeyval.get('todos', new_id)
+                            .then(new_todo => {
+                                let order = 0;
+                                todo.order = new_todo.order + 1;
+                                dir.todos.find(x => x.id === todo.id).order = new_todo.order + 1;
+                                dir.todos = dir.todos.sort((a,b) => {
+                                    if (a.order < b.order) {
+                                        return -1;
+                                    }
+                                    if (a.order > b.order) {
+                                        return 1;
+                                    }
+                                    if (a.order === b.order) {
+                                        if (a.id === todo.id)
+                                            return -1;
+                                        else return 1;
+                                    }
+
+                                    return 0;
+                                });
+                                let promises = [];
+                                for (let val of dir.todos) {
+                                    val.order = order;
+                                    promises.push(idbKeyval.set('todos', val));
+                                    order++;
+                                }
+                                Promise.all(
+                                    promises
+                                )
+                                    .then(() => this.updateDirs());
+                            })
+                    }
+                }
+            }
+        });
+    }
+
     render() {
         return (
             <div className="container-xl">
@@ -169,14 +231,15 @@ class App extends React.Component  {
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles">
                                     <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles"
                                          fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                              d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z"/>
+                                        <path d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z"/>
                                     </svg>
                                 </svg>
                             </button>
                         </div>
                         <div className="row directories-scroll">
                             <Directories
+                                onDrop={this.onDrop}
+                                onDragOver={this.onDragOver}
                                 deleteDir={this.deleteDir}
                                 deleteTodo={this.deleteToDo}
                                 addNewTODO={this.addNewTODO}
