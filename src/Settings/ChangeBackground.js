@@ -15,7 +15,8 @@ export default function ChangeBackground(props) {
     ];
 
     function changeColorBackground(color) {
-        setColor(color)
+        setColor(color);
+        props.changeBackground(color);
     }
 
     return (
@@ -37,9 +38,7 @@ export default function ChangeBackground(props) {
                 {
                     colors.map(color =>
                         <div key={color.code}
-                             onClick={() => {
-                                 setColor(color);
-                                 props.changeBackground(color)}}
+                             onClick={() => changeColorBackground(color)}
                              className={currentColor.code === color.code ?
                                  'active-color-card color-card' : 'color-card'}
                              style={{background: color.code}}/>)

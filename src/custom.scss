@@ -6,7 +6,7 @@ $light-blue: #99b6e5;
 html, body, #root {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow: auto;
 }
 
 #root {
@@ -121,16 +121,17 @@ button, input {
   max-width: 275px;
   margin: 10px;
   height: fit-content;
-  border: 1px solid $primary;
   background: $gray-200;
   border-radius: 5px;
 }
 .todo-card {
-  border: 1px solid $primary;
   border-radius: 5px;
   background: white;
   display: flex;
   flex-direction: row;
+}
+.card-border {
+  border: 1px solid var(--primary-color, #{$primary});
 }
 .todo-card:hover {
   color: $black;
@@ -150,7 +151,11 @@ button, input {
 }
 .delete-button:hover {
   animation: close-svg-settings-hover 3s;
-  color: $primary;
+  color: var(--primary-color, #{$primary});
+}
+.text-button {
+  color: var(--primary-color, #{$primary});
+  border: 1px solid var(--primary-color, #{$primary});
 }
 
 

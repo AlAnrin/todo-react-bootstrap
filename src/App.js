@@ -132,9 +132,13 @@ class App extends React.Component  {
         root.style.background = 'transparent';
         if (this.state.background_color) {
             root.style.background = this.state.background_color;
+            document.documentElement.style.setProperty('--primary-color', '#000000')
         }
         if (this.state.background_url) {
             root.style.backgroundImage = `url(${this.state.background_url})`;
+            let style = getComputedStyle(document.body);
+            let primary = style.getPropertyValue('--primary');
+            document.documentElement.style.setProperty('--primary-color', primary)
         }
     }
 
@@ -245,14 +249,14 @@ class App extends React.Component  {
                     <div>
                         <div className="row">
                             <button type="button"
-                                    className="btn btn-outline-primary m-2"
+                                    className="btn btn-outline-primary text-button m-2"
                                     onClick={() => this.addNewDir()}>Новый список</button>
                             <button type="button"
-                                    className="btn btn-outline-primary m-2"
+                                    className="btn btn-outline-primary text-button m-2"
                                     onClick={() => this.clear()}>Очистить все</button>
                             <div className="spacer"/>
                             <button type="button" onClick={() => this.changeSettingsOpenState()}
-                                    className="btn btn-outline-primary m-2">
+                                    className="btn btn-outline-primary text-button m-2">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles">
                                     <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles"
                                          fill="currentColor" xmlns="http://www.w3.org/2000/svg">
