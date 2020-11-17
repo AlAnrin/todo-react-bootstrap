@@ -82,15 +82,26 @@ class App extends React.Component  {
 
     deleteDir(key) {
         idbKeyval.delete('dirs', key)
-            .then(() => this.updateDirs());
+            .then(() => {
+                this.state.dirs.splice(this.state.dirs.findIndex(x =>x.dir.id === key), 1);
+                this.promiseAllNewOrderSetInDb(this.state.dirs, 'dirs');
+            });
     }
 
     deleteToDo(key) {
-        idbKeyval.delete('todos', key)
-            .then(() => this.updateDirs());
+        idbKeyval.get('todos', key)
+            .then(todo => {
+                    let dir = this.state.dirs.find(x => x.dir.id === todo.dir_id);
+                    idbKeyval.delete('todos', key)
+                        .then(() => {
+                            dir.todos.splice(dir.todos.findIndex(x => x.id === todo.id), 1);
+                            this.promiseAllNewOrderSetInDb(dir.todos, 'todos');
+                        })
+                }
+            )
     }
 
-    async clear() {
+    clear() {
         idbKeyval.clear('todos').then(() =>
             idbKeyval.clear('dirs').then(() => this.updateDirs()));
     }
@@ -154,6 +165,45 @@ class App extends React.Component  {
         event.preventDefault();
     }
 
+    promiseAllNewOrderSetInDb(list, table) {
+        let order = 0;
+        let promises = [];
+        for (let val of list) {
+            if (table === 'todos') {
+                val.order = order;
+                promises.push(idbKeyval.set(table, val));
+            }
+            else {
+                val.dir.order = order;
+                promises.push(idbKeyval.set(table, val.dir));
+            }
+            order++;
+        }
+        Promise.all(
+            promises
+        )
+            .then(() => this.updateDirs());
+    }
+
+    setNewOrderInListOfToDos(todo, dir) {
+        dir.todos = dir.todos.sort((a,b) => {
+            if (a.order < b.order) {
+                return -1;
+            }
+            if (a.order > b.order) {
+                return 1;
+            }
+            if (a.order === b.order) {
+                if (a.id === todo.id)
+                    return -1;
+                else return 1;
+            }
+
+            return 0;
+        });
+        this.promiseAllNewOrderSetInDb(dir.todos, 'todos');
+    }
+
     onDrop(event, dir) {
         const id = +event.dataTransfer.getData('obj');
         idbKeyval.get('todos', id).then(todo => {
@@ -170,34 +220,9 @@ class App extends React.Component  {
                     if (new_id !== id) {
                         idbKeyval.get('todos', new_id)
                             .then(new_todo => {
-                                let order = 0;
                                 todo.order = new_todo.order + 1;
                                 dir.todos.find(x => x.id === todo.id).order = new_todo.order + 1;
-                                dir.todos = dir.todos.sort((a,b) => {
-                                    if (a.order < b.order) {
-                                        return -1;
-                                    }
-                                    if (a.order > b.order) {
-                                        return 1;
-                                    }
-                                    if (a.order === b.order) {
-                                        if (a.id === todo.id)
-                                            return -1;
-                                        else return 1;
-                                    }
-
-                                    return 0;
-                                });
-                                let promises = [];
-                                for (let val of dir.todos) {
-                                    val.order = order;
-                                    promises.push(idbKeyval.set('todos', val));
-                                    order++;
-                                }
-                                Promise.all(
-                                    promises
-                                )
-                                    .then(() => this.updateDirs());
+                                this.setNewOrderInListOfToDos(todo, dir);
                             })
                     }
                 }
