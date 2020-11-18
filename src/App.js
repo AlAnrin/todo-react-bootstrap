@@ -1,25 +1,25 @@
 import React from "react";
-import ChangeSettings from './Settings/ChangeSettings'
+import ChangeSettings from './Settings/ChangeSettings';
 import {dbPromise, idbKeyval} from './DBActions';
 import Directories from "./Directories/Directories";
 
-class App extends React.Component  {
+class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             isOpenSettings: false,
             db: dbPromise,
             dirs: [],
-            background_url: '',
-            background_color: ''
+            primaryColor: {id: -1, value: ''},
+            backgroundUrl: {id: -1, value: ''},
+            backgroundColor: {id: -1, value: ''}
         };
 
-        this.changeBackground = this.changeBackground.bind(this);
-        this.addNewTODO= this.addNewTODO.bind(this);
-        this.deleteDir = this.deleteDir.bind(this);
-        this.deleteToDo = this.deleteToDo.bind(this);
+        this.updateDirs = this.updateDirs.bind(this);
         this.clear = this.clear.bind(this);
-        this.onDrop = this.onDrop.bind(this);
+        this.setAndChangeSettings = this.setAndChangeSettings.bind(this);
+        this.changeRootBySettings = this.changeRootBySettings.bind(this);
+        this.changePrimaryColor = this.changePrimaryColor.bind(this);
     }
 
     componentDidMount() {
@@ -27,22 +27,42 @@ class App extends React.Component  {
         idbKeyval.getAll('settings').then(settings => {
             for (let item of settings) {
                 if (item.name === 'url') {
-                    this.setState({
-                        background_url: item.value,
-                        background_color: ''
-                    }, () => {
-                        this.changeStyleRoot();
-                    })
+                    this.setAndChangeSettings('backgroundUrl', item);
                 }
-                if (item.name === 'color')
-                    this.setState({
-                        background_url: '',
-                        background_color: item.value
-                    }, () => {
-                        this.changeStyleRoot();
-                    })
+                if (item.name === 'color') {
+                    this.setAndChangeSettings('backgroundColor', item);
+                }
+                if (item.name === 'color_primary') {
+                    this.changePrimaryColor(item);
+                }
             }
+            this.changeRootBySettings();
         });
+    }
+
+    setAndChangeSettings(name, value) {
+        this.setState({[name]: value}, () => {
+            this.changeRootBySettings();
+        })
+    }
+
+    changeRootBySettings() {
+        const root = document.getElementById('root');
+        root.style.backgroundImage = 'none';
+        root.style.background = 'none';
+        if (this.state.backgroundColor.id !== -1) {
+            root.style.background = this.state.backgroundColor.value;
+        }
+        if (this.state.backgroundUrl.id !== -1) {
+            root.style.backgroundImage = `url(${this.state.backgroundUrl.value})`;
+        }
+    }
+
+    changePrimaryColor(item) {
+        this.setState({primaryColor: item}, () =>
+            document.documentElement.style.setProperty('--primary-color',
+                this.state.primaryColor.value)
+        );
     }
 
     updateDirs() {
@@ -53,10 +73,10 @@ class App extends React.Component  {
                     res.push({
                         dir: dir,
                         todos: todos.filter(x =>
-                            x.dir_id === dir.id).sort((a,b) => a.order - b.order)
+                            x.dir_id === dir.id).sort((a, b) => a.order - b.order)
                     })
                 }
-                res.sort((a,b) => a.order - b.order);
+                res.sort((a, b) => a.order - b.order);
                 this.setState({dirs: res});
             })
         });
@@ -68,37 +88,6 @@ class App extends React.Component  {
             order: this.state.dirs.length
         })
             .then(() => this.updateDirs());
-    }
-
-    addNewTODO(dir) {
-        idbKeyval.add('todos', {
-            title: 'New todo',
-            describe: 'new',
-            data: new Date().toISOString(),
-            dir_id: dir.dir.id,
-            order: dir.todos.length
-        }).then(() => this.updateDirs());
-    }
-
-    deleteDir(key) {
-        idbKeyval.delete('dirs', key)
-            .then(() => {
-                this.state.dirs.splice(this.state.dirs.findIndex(x =>x.dir.id === key), 1);
-                this.promiseAllNewOrderSetInDb(this.state.dirs, 'dirs');
-            });
-    }
-
-    deleteToDo(key) {
-        idbKeyval.get('todos', key)
-            .then(todo => {
-                    let dir = this.state.dirs.find(x => x.dir.id === todo.dir_id);
-                    idbKeyval.delete('todos', key)
-                        .then(() => {
-                            dir.todos.splice(dir.todos.findIndex(x => x.id === todo.id), 1);
-                            this.promiseAllNewOrderSetInDb(dir.todos, 'todos');
-                        })
-                }
-            )
     }
 
     clear() {
@@ -122,161 +111,52 @@ class App extends React.Component  {
             const settingsPanel = document.getElementById('settings');
             settingsPanel.style.animation = 'close-settings-panel 1s';
             setTimeout(() => this.setNewSettingsPanelPosition(), 1000);
-        }
-        else this.setNewSettingsPanelPosition();
-    }
-
-    changeStyleRoot() {
-        const root = document.getElementById('root');
-        root.style.backgroundImage = 'none';
-        root.style.background = 'transparent';
-        if (this.state.background_color) {
-            root.style.background = this.state.background_color;
-            document.documentElement.style.setProperty('--primary-color', '#000000')
-        }
-        if (this.state.background_url) {
-            root.style.backgroundImage = `url(${this.state.background_url})`;
-            let style = getComputedStyle(document.body);
-            let primary = style.getPropertyValue('--primary');
-            document.documentElement.style.setProperty('--primary-color', primary)
-        }
-    }
-
-    changeBackground(new_url) {
-        idbKeyval.delete('settings', 'url');
-        idbKeyval.delete('settings', 'color');
-        if (new_url instanceof Object) {
-            this.setState({
-                background_url: '',
-                background_color: new_url.code
-            })
-            idbKeyval.add('settings', {
-                name: 'color',
-                value: new_url.code
-            }).then(() => this.changeStyleRoot());
-        }
-        else {
-            this.setState({background_url: new_url});
-            idbKeyval.add('settings', {
-                name: 'url',
-                value: new_url
-            }).then(() => this.changeStyleRoot());
-            this.changeSettingsOpenState();
-        }
-    }
-
-    onDragOver(event) {
-        event.preventDefault();
-    }
-
-    promiseAllNewOrderSetInDb(list, table) {
-        let order = 0;
-        let promises = [];
-        for (let val of list) {
-            if (table === 'todos') {
-                val.order = order;
-                promises.push(idbKeyval.set(table, val));
-            }
-            else {
-                val.dir.order = order;
-                promises.push(idbKeyval.set(table, val.dir));
-            }
-            order++;
-        }
-        Promise.all(
-            promises
-        )
-            .then(() => this.updateDirs());
-    }
-
-    setNewOrderInListOfToDos(todo, dir) {
-        dir.todos = dir.todos.sort((a,b) => {
-            if (a.order < b.order) {
-                return -1;
-            }
-            if (a.order > b.order) {
-                return 1;
-            }
-            if (a.order === b.order) {
-                if (a.id === todo.id)
-                    return -1;
-                else return 1;
-            }
-
-            return 0;
-        });
-        this.promiseAllNewOrderSetInDb(dir.todos, 'todos');
-    }
-
-    onDrop(event, dir) {
-        const id = +event.dataTransfer.getData('obj');
-        idbKeyval.get('todos', id).then(todo => {
-            if (todo.dir_id !== dir.dir.id) {
-                todo.dir_id = dir.dir.id;
-                todo.order = dir.todos.length;
-                idbKeyval.set('todos', todo)
-                    .then(() => this.updateDirs());
-            }
-            else {
-                const target_id = event.target.id;
-                if (target_id) {
-                    let new_id = +target_id.split(':')[1];
-                    if (new_id !== id) {
-                        idbKeyval.get('todos', new_id)
-                            .then(new_todo => {
-                                todo.order = new_todo.order + 1;
-                                dir.todos.find(x => x.id === todo.id).order = new_todo.order + 1;
-                                this.setNewOrderInListOfToDos(todo, dir);
-                            })
-                    }
-                }
-            }
-        });
+        } else this.setNewSettingsPanelPosition();
     }
 
     render() {
         return (
             <div className="container-xl">
-                <>
-                    {
-                        this.state.isOpenSettings &&
-                        <div id="settings" className="settings-panel position-absolute">
-                            <ChangeSettings
-                                changeBackground={this.changeBackground}
-                                changeSettingsOpen={() => this.changeSettingsOpenState()}/>
-                        </div>
-                    }
-                    <div>
-                        <div className="row">
-                            <button type="button"
-                                    className="btn btn-outline-primary text-button m-2"
-                                    onClick={() => this.addNewDir()}>Новый список</button>
-                            <button type="button"
-                                    className="btn btn-outline-primary text-button m-2"
-                                    onClick={() => this.clear()}>Очистить все</button>
-                            <div className="spacer"/>
-                            <button type="button" onClick={() => this.changeSettingsOpenState()}
-                                    className="btn btn-outline-primary text-button m-2">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles"
-                                         fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z"/>
-                                    </svg>
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="row directories-scroll">
-                            <Directories
-                                onDrop={this.onDrop}
-                                onDragOver={this.onDragOver}
-                                deleteDir={this.deleteDir}
-                                deleteTodo={this.deleteToDo}
-                                addNewTODO={this.addNewTODO}
-                                clear={this.clear}
-                                dirs={this.state.dirs}/>
-                        </div>
+                {
+                    this.state.isOpenSettings &&
+                    <div id="settings" className="settings-panel position-absolute">
+                        <ChangeSettings
+                            primaryColor={this.state.primaryColor}
+                            backgroundColor={this.state.backgroundColor}
+                            backgroundUrl={this.state.backgroundUrl}
+                            changePrimaryColor={this.changePrimaryColor}
+                            setAndChangeSettings={this.setAndChangeSettings}
+                            changeSettingsOpen={() => this.changeSettingsOpenState()}/>
                     </div>
-                </>
+                }
+                <div>
+                    <div className="row">
+                        <button type="button"
+                                className="btn btn-outline-primary text-button m-2"
+                                onClick={() => this.addNewDir()}>Новый список
+                        </button>
+                        <button type="button"
+                                className="btn btn-outline-primary text-button m-2"
+                                onClick={() => this.clear()}>Очистить все
+                        </button>
+                        <div className="spacer"/>
+                        <button type="button" onClick={() => this.changeSettingsOpenState()}
+                                className="btn btn-outline-primary text-button m-2">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-toggles"
+                                     fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z"/>
+                                </svg>
+                            </svg>
+                        </button>
+                    </div>
+                    <div className="row directories-scroll">
+                        <Directories
+                            updateDirs={this.updateDirs}
+                            dirs={this.state.dirs}/>
+                    </div>
+                </div>
             </div>
         );
     }

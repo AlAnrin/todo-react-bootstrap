@@ -100,6 +100,9 @@ button, input {
   padding: 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.23);
 }
+.active-color-card:hover {
+  border: 2px solid $gray-800;
+}
 .active-color-card {
   border: 2px solid $gray-900;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.53);
